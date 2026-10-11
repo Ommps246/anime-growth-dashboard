@@ -1,0 +1,68 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+{% block title %}Report{% endblock %}
+{% block content %}
+<div class="page-head"><div class="wrap">
+  <span class="kicker">Report · 報告</span>
+  <h1>Findings</h1>
+  <p>Every figure below is computed from the database when the page loads, so the report changes when the data does.</p>
+  <div class="btn-row" style="margin-top:18px">
+    <a class="btn primary" href="{% url 'dashboard:report_pdf' %}">Download PDF report</a>
+    <button class="btn" onclick="window.print()">Print this page</button>
+  </div>
+</div></div>
+
+<section><div class="wrap">
+  <div class="sec-head"><h2>1 · Key findings</h2></div>
+  <div class="find">
+    {% for title, text in findings %}
+    <div class="card reveal"><div class="n">{{ forloop.counter|stringformat:"02d" }}</div><h3>{{ title }}</h3><p>{{ text }}</p></div>
+    {% endfor %}
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><div><h2>2 · Forecast summary</h2><p>Model chosen per series by back-testing on the last four years.</p></div></div>
+  <div class="table-scroll reveal"><table>
+    <thead><tr><th>Series</th><th>Unit</th><th>Latest</th><th>Forecast</th><th>95% interval</th><th>Change</th><th>Model</th><th>Back-test error</th><th>Confidence</th></tr></thead>
+    <tbody>{% for f in forecasts %}<tr>
+      <td class="txt">{{ f.label }}</td><td class="txt">{{ f.unit }}</td>
+      <td>{{ f.last_value|floatformat:0|intcomma }} <span class="muted">({{ f.last_year }})</span></td>
+      <td><b>{{ f.end_value|floatformat:0|intcomma }}</b> <span class="muted">({{ f.end_year }})</span></td>
+      <td>{{ f.end_low|floatformat:0|intcomma }}–{{ f.end_high|floatformat:0|intcomma }}</td>
+      <td><span class="{% if f.change_pct >= 0 %}up{% else %}down{% endif %}">{{ f.change_pct|floatformat:0 }}%</span></td>
+      <td class="txt">{{ f.best.label }}</td><td>{{ f.best.mape|floatformat:1 }}%</td><td class="txt">{{ f.confidence }}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="note">The manga row is a trend check to 2021 against an incomplete catalogue, not a forecast to {{ end }}; see the Predictions page.</p>
+</div></section>
+
+<section><div class="wrap grid-2">
+  <div class="sec-head span-2"><h2>3 · Figures</h2></div>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'market_stack' %}" alt="Stacked bar chart of the anime market by segment" loading="lazy"></div></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'forecast_market_total' %}" alt="Forecast of the total anime market" loading="lazy"></div></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'production_stack' %}" alt="Anime titles released per year by format" loading="lazy"></div></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'forecast_anime_titles' %}" alt="Forecast of anime titles released" loading="lazy"></div></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'forecast_merchandising' %}" alt="Forecast of merchandise revenue" loading="lazy"></div></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'manga_stack' %}" alt="Manga and light novels started per year" loading="lazy"></div></figure>
+</div></section>
+
+<section><div class="wrap grid-2">
+  <div class="card reveal">
+    <h2 style="font-size:1.4rem;margin-bottom:12px">4 · Method</h2>
+    <p class="muted">Four CSV files are loaded into SQLite through Django models. pandas reads the tables back and does the grouping, cross-tabulation and share calculations; NumPy handles the growth-rate and error-band arithmetic. Matplotlib draws the static figures and the PDF. scikit-learn fits the trend models. The interactive charts fetch the same results as JSON from the dashboard's own API.</p>
+  </div>
+  <div class="card reveal">
+    <h2 style="font-size:1.4rem;margin-bottom:12px">5 · Limits</h2>
+    <p class="muted">Title counts depend on what fan-maintained catalogues have recorded, and small or older works are under-represented. Manga is measured in titles launched, not sales, and the data ends in 2022. Market figures before 2008 exclude pachinko and before 2013 exclude live events, because AJA did not survey them. The forecasts are trend extensions, not causal models.</p>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><h2>6 · Sources</h2></div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Dataset</th><th>Source</th><th>Snapshot</th></tr></thead>
+    <tbody>{% for s in sources %}<tr><td class="txt">{{ s.name }}</td><td class="txt"><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.source }}</a></td><td class="txt">{{ s.snapshot }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div></section>
+{% endblock %}

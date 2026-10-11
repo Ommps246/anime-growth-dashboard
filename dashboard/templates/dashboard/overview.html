@@ -1,0 +1,72 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="jp" aria-hidden="true">成長</div>
+  <div class="wrap">
+    <span class="kicker">Fundamentals of Data Science</span>
+    <h1>Anime production<br><span class="glow">growth, measured.</span></h1>
+    <p class="lede">Two decades of shows, manga and merchandise in one place: {{ k.anime_rows|intcomma }} anime titles,
+      {{ k.manga_rows|intcomma }} manga and {{ k.market_rows }} years of industry revenue, analysed with pandas and projected to {{ f.end_year }}.</p>
+  </div>
+  <div class="wall" aria-label="Posters of well-rated anime, 2012 to {{ k.titles_year }}">
+    <div class="strip">{% for p in posters %}{% include "dashboard/_poster.html" %}{% endfor %}{% for p in posters %}{% include "dashboard/_poster.html" %}{% endfor %}</div>
+    <div class="strip rev">{% for p in posters reversed %}{% include "dashboard/_poster.html" %}{% endfor %}{% for p in posters reversed %}{% include "dashboard/_poster.html" %}{% endfor %}</div>
+  </div>
+  <div class="wall-fade"></div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kpis">
+      <div class="kpi"><div class="big" data-count="{{ k.market_total_trn|floatformat:2 }}" data-dec="2" data-pre="¥" data-suf="T">¥{{ k.market_total_trn|floatformat:2 }}T</div>
+        <div class="lab">anime market in {{ k.market_year }}</div><div class="tag"><span class="up">{{ k.market_yoy|floatformat:1 }}% up</span> on {{ k.market_year|add:"-1" }}</div></div>
+      <div class="kpi"><div class="big" data-count="{{ k.titles }}">{{ k.titles|intcomma }}</div>
+        <div class="lab">Japanese titles released in {{ k.titles_year }}</div><div class="tag">{{ k.tv_titles }} of them TV series</div></div>
+      <div class="kpi"><div class="big" data-count="{{ k.merch_bn|floatformat:0 }}" data-pre="¥" data-suf="B">¥{{ k.merch_bn|floatformat:0 }}B</div>
+        <div class="lab">merchandise sales in {{ k.market_year }}</div><div class="tag"><span class="up">{{ k.merch_yoy|floatformat:1 }}% up</span> on the year</div></div>
+      <div class="kpi"><div class="big" data-count="{{ k.manga_titles }}">{{ k.manga_titles|intcomma }}</div>
+        <div class="lab">manga and light novels started in {{ k.manga_year }}</div><div class="tag">the peak year in the data</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap grid-2">
+    <div class="card reveal">
+      <h3>The market, and where it is heading</h3>
+      <p class="sub">¥ billion. Forecast to {{ f.end_year }}: ¥{{ f.end_value|floatformat:0|intcomma }} billion
+        (95% interval ¥{{ f.end_low|floatformat:0|intcomma }}–{{ f.end_high|floatformat:0|intcomma }} billion).</p>
+      <div class="canvas-box"><canvas data-chart="forecast" data-url="{% url 'dashboard:api_forecast' 'market_total' %}"></canvas></div>
+    </div>
+    <div class="card reveal">
+      <h3>Titles released per year</h3>
+      <p class="sub">Japanese anime by format, 2000–{{ k.titles_year }}. Hover for the numbers.</p>
+      <div class="canvas-box"><canvas data-chart="production" data-url="{% url 'dashboard:api_production' %}"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head"><div><h2>What the data says</h2></div>
+      <a class="btn" href="{% url 'dashboard:report' %}">Read the full report →</a></div>
+    <div class="find">
+      {% for title, text in findings %}
+      <div class="card reveal"><div class="n">0{{ forloop.counter }}</div><h3>{{ title }}</h3><p>{{ text }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head"><div><h2>Top-rated series of {{ k.titles_year }}</h2>
+      <p>Highest audience scores among Japanese TV series with ten or more episodes.</p></div></div>
+    <div class="row-posters reveal">
+      {% for p in top_now %}<div>{% include "dashboard/_poster.html" %}<div class="cap num">★ {{ p.score|floatformat:2 }}</div></div>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

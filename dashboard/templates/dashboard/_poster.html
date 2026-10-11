@@ -1,0 +1,4 @@
+<a class="poster" href="{{ p.url }}" target="_blank" rel="noopener" title="{{ p.title }} ({{ p.year }})">
+  {% if p.picture %}<img src="{{ p.picture }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% endif %}
+  <span>{{ p.title }}</span>
+</a>

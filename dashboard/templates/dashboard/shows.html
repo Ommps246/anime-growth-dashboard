@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Shows{% endblock %}
+{% block content %}
+<div class="page-head"><div class="wrap">
+  <span class="kicker">Shows · 番組</span>
+  <h1>How much anime gets made</h1>
+  <p>Every TV series, film, OVA, web release and special in the catalogue, counted by release year. Charts on this page are drawn with Matplotlib from the SQLite tables.</p>
+  <div class="btn-row" style="margin-top:18px">
+    <div class="seg" role="group" aria-label="Country of origin">
+      <a href="?origin=Japan" class="{% if origin == 'Japan' %}on{% endif %}">Japan only</a>
+      <a href="?origin=All" class="{% if origin == 'All' %}on{% endif %}">Include China &amp; Korea</a>
+    </div>
+  </div>
+</div></div>
+
+<section><div class="wrap">{% include "dashboard/_stats.html" %}</div></section>
+
+<section><div class="wrap grid-2">
+  <figure class="card span-2 reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'production_stack' %}?origin={{ origin }}" alt="Stacked area chart of anime titles released per year by format" loading="lazy"></div>
+    <figcaption>Web releases (ONA) and specials account for most of the titles added since 2010, while OVA releases have fallen.</figcaption></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'tv_series' %}?origin={{ origin }}" alt="Bar chart of new TV anime series per year" loading="lazy"></div>
+    <figcaption>The hatched bar is the year after {{ last }}: titles announced when the data was collected in July 2026, not a full year.</figcaption></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'seasons' %}?origin={{ origin }}" alt="Bar chart of TV series by broadcast season" loading="lazy"></div>
+    <figcaption>TV series counted by the season they premiered.</figcaption></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'genres' %}?origin={{ origin }}" alt="Line chart of genre share over time" loading="lazy"></div>
+    <figcaption>A title can carry several genres, so shares add up to more than 100%.</figcaption></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'source_material' %}?origin={{ origin }}" alt="Stacked area chart of TV anime source material" loading="lazy"></div>
+    <figcaption>Only titles whose source is tagged in the dataset are counted.</figcaption></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'studios' %}?origin={{ origin }}" alt="Bar chart of most productive studios" loading="lazy"></div></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'scores' %}?origin={{ origin }}" alt="Median audience score of TV series by release year" loading="lazy"></div>
+    <figcaption>Scores are averaged across the sites the dataset merges.</figcaption></figure>
+  <figure class="card span-2 reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'minutes' %}" alt="Line chart of TV anime minutes produced per year" loading="lazy"></div>
+    <figcaption>Industry-reported broadcast minutes (AJA), available to 2020. Output peaked in 2006 and again in 2018.</figcaption></figure>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><h2>Top-rated TV series of {{ last }}</h2></div>
+  <div class="row-posters reveal">{% for p in top_now %}<div>{% include "dashboard/_poster.html" %}<div class="cap num">★ {{ p.score|floatformat:2 }}</div></div>{% endfor %}</div>
+</div></section>
+{% endblock %}

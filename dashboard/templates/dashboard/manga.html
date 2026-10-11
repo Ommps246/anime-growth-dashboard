@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+{% block title %}Manga{% endblock %}
+{% block content %}
+<div class="page-head"><div class="wrap">
+  <span class="kicker">Manga · 漫画</span>
+  <h1>The source material</h1>
+  <p>Manga, light novels, manhwa and manhua by the year they started, from the MyAnimeList catalogue. This measures how many titles launched, not how many copies sold.</p>
+</div></div>
+
+<section><div class="wrap">{% include "dashboard/_stats.html" %}
+  <p class="callout" style="margin-top:16px"><b>Read the last years with care.</b> The dataset was collected in mid-2022. Counts fall after {{ reliable_end }}: part of that is titles MyAnimeList had not yet catalogued, and part may be a real slowdown. The data cannot separate the two, so growth figures here stop at {{ reliable_end }}.</p>
+</div></section>
+
+<section><div class="wrap grid-2">
+  <figure class="card span-2 reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'manga_stack' %}" alt="Stacked area chart of manga and light novels started per year" loading="lazy"></div></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'manga_demographics' %}" alt="Line chart of manga launches by target audience" loading="lazy"></div>
+    <figcaption>Only titles with a demographic label are counted.</figcaption></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'manga_genres' %}" alt="Bar chart of the most common manga genres" loading="lazy"></div></figure>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><div><h2>Most-followed titles</h2><p>Ranked by MyAnimeList members in the 2022 snapshot.</p></div></div>
+  <div class="row-posters reveal">{% for p in top %}<div>{% include "dashboard/_poster.html" %}<div class="cap num">{{ p.members|intcomma }} members</div></div>{% endfor %}</div>
+</div></section>
+{% endblock %}

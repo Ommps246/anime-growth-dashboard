@@ -1,0 +1,41 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Anime Growth{% endblock %} · Anime Production Growth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
+</head>
+<body>
+<div class="petals" aria-hidden="true"></div>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="{% url 'dashboard:overview' %}">ANIME<b>//</b>GROWTH<small>アニメ</small></a>
+    <nav aria-label="Sections">
+      <a href="{% url 'dashboard:overview' %}" class="{% if page == 'overview' %}on{% endif %}">Overview</a>
+      <a href="{% url 'dashboard:shows' %}" class="{% if page == 'shows' %}on{% endif %}">Shows</a>
+      <a href="{% url 'dashboard:manga' %}" class="{% if page == 'manga' %}on{% endif %}">Manga</a>
+      <a href="{% url 'dashboard:market' %}" class="{% if page == 'market' %}on{% endif %}">Merch &amp; market</a>
+      <a href="{% url 'dashboard:predictions' %}" class="{% if page == 'predictions' %}on{% endif %}">Predictions</a>
+      <a href="{% url 'dashboard:report' %}" class="{% if page == 'report' %}on{% endif %}">Report</a>
+      <a href="{% url 'dashboard:data' %}" class="{% if page == 'data' %}on{% endif %}">Data</a>
+    </nav>
+  </div>
+</header>
+<main>
+{% if messages %}<div class="wrap msgs">{% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}</div>{% endif %}
+{% block content %}{% endblock %}
+</main>
+<footer>
+  <div class="wrap">
+    Fundamentals of Data Science project · Django, pandas, NumPy, Matplotlib, scikit-learn, SQLite, JSON.
+    Market figures: Association of Japanese Animations. Titles: anime-offline-database and MyAnimeList.
+    Poster images load from MyAnimeList and belong to their rights holders.
+  </div>
+</footer>
+<script src="{% static 'dashboard/chart.umd.js' %}"></script>
+<script src="{% static 'dashboard/app.js' %}"></script>
+</body>
+</html>

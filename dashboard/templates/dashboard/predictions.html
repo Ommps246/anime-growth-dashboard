@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+{% block title %}Predictions{% endblock %}
+{% block content %}
+<div class="page-head"><div class="wrap">
+  <span class="kicker">Predictions · 予測</span>
+  <h1>Projected to {{ end }}</h1>
+  <p>Each series is fitted with three trend models (linear, quadratic, exponential) using scikit-learn. The model shown is the one that best predicted the last {{ holdout }} years when those years were hidden from it.</p>
+  <div class="btn-row" style="margin-top:18px">
+    <a class="btn" href="{% url 'dashboard:download' 'forecast' 'csv' %}">Download forecasts (CSV)</a>
+    <a class="btn" href="{% url 'dashboard:download' 'forecast' 'json' %}">JSON</a>
+  </div>
+</div></div>
+
+<section><div class="wrap">
+  <p class="callout"><b>How far to trust these.</b> They extend past trends from 12 to 21 yearly data points and cannot foresee shocks such as 2020. The shaded band is the 95% prediction interval from least squares, which is only valid if the trend keeps its shape. The confidence label comes from the back-test error: under 8% good, under 15% moderate, otherwise low.</p>
+</div></section>
+
+<section><div class="wrap grid-2">
+  {% for f in forecasts %}
+  <div class="card reveal {% if forloop.first %}span-2{% endif %}">
+    <div class="fc-head">
+      <div><span class="pill {% if f.group == 'Shows' %}pink{% elif f.group == 'Manga' %}yellow{% endif %}">{{ f.group }}</span>
+        <h3 style="margin-top:8px">{{ f.label }}</h3>
+        <p class="sub" style="margin:4px 0 0">{{ f.best.label }} · trained on {{ f.train_from }}–{{ f.train_to }} · confidence: <b class="{% if f.confidence == 'Good' %}up{% elif f.confidence == 'Low' %}down{% endif %}">{{ f.confidence|lower }}</b></p></div>
+      <div class="fc-num"><div class="big num">{{ f.end_value|floatformat:0|intcomma }}</div>
+        <div class="muted" style="font-size:.85rem">{{ f.unit }} in {{ f.end_year }}{% if f.later_values %} on trend{% endif %} · <span class="{% if f.change_pct >= 0 %}up{% else %}down{% endif %}">{{ f.change_pct|floatformat:0 }}% vs {{ f.last_year }}</span></div>
+        <div class="muted num" style="font-size:.8rem">range {{ f.end_low|floatformat:0|intcomma }}–{{ f.end_high|floatformat:0|intcomma }}</div></div>
+    </div>
+    <div class="canvas-box"><canvas data-chart="forecast" data-url="{% url 'dashboard:api_forecast' f.key %}"></canvas></div>
+    {% if f.note %}<p class="callout" style="margin-top:12px">{{ f.note }}</p>{% endif %}
+    <div class="table-scroll models"><table>
+      <thead><tr><th>Model</th><th>Back-test error (MAPE)</th><th>Mean abs. error</th><th>R² on all years</th></tr></thead>
+      <tbody>{% for m in f.models %}<tr><td class="txt">{{ m.label }}{% if m.best %} <span class="pill">chosen</span>{% endif %}</td>
+        <td>{{ m.mape|floatformat:1 }}%</td><td>{{ m.mae|floatformat:1|intcomma }}</td><td>{{ m.r2|floatformat:3 }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  {% endfor %}
+</div></section>
+{% endblock %}

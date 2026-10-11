@@ -1,0 +1,42 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+{% block title %}Merch & market{% endblock %}
+{% block content %}
+<div class="page-head"><div class="wrap">
+  <span class="kicker">Merchandise &amp; market · 商品</span>
+  <h1>Where the money comes from</h1>
+  <p>Industry revenue by segment from the Association of Japanese Animations, in billions of yen. The table is stored in SQLite, so rows you add on the Data page appear here straight away.</p>
+</div></div>
+
+<section><div class="wrap">{% include "dashboard/_stats.html" %}</div></section>
+
+<section><div class="wrap grid-2">
+  <div class="card span-2 reveal">
+    <h3>Market by segment</h3><p class="sub">Interactive: click a legend item to hide a segment. Loaded from <code>/api/market/</code>.</p>
+    <div class="canvas-box tall"><canvas data-chart="market" data-url="{% url 'dashboard:api_market' %}"></canvas></div>
+  </div>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'market_share' %}" alt="Line chart of segment share of the total market" loading="lazy"></div>
+    <figcaption>Merchandise still earns more each year, but its share has halved as overseas revenue grew.</figcaption></figure>
+  <figure class="card reveal"><div class="fig"><img src="{% url 'dashboard:chart' 'market_vs_output' %}" alt="Indexed line chart of market value against titles released" loading="lazy"></div>
+    <figcaption>The number of titles grew faster than revenue until about 2015; since then revenue has grown much faster.</figcaption></figure>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><h2>The numbers</h2>
+    <div class="btn-row"><a class="btn small" href="{% url 'dashboard:download' 'market' 'csv' %}">CSV</a><a class="btn small" href="{% url 'dashboard:download' 'market' 'json' %}">JSON</a></div></div>
+  <div class="table-scroll reveal" style="max-height:520px;overflow-y:auto">
+    <table>
+      <thead><tr><th>Year</th>{% for key, label in segments %}<th>{{ label }}</th>{% endfor %}<th>Total</th><th>Change</th></tr></thead>
+      <tbody>{% for r in rows %}<tr>
+        <td>{{ r.year }}{% if r.record_source != "AJA report" %} <span class="pill pink">added</span>{% endif %}</td>
+        <td>{{ r.tv|floatformat:1|default:"–" }}</td><td>{{ r.movie|floatformat:1|default:"–" }}</td><td>{{ r.video|floatformat:1|default:"–" }}</td>
+        <td>{{ r.streaming|floatformat:1|default:"–" }}</td><td>{{ r.merchandising|floatformat:1|default:"–" }}</td><td>{{ r.music|floatformat:1|default:"–" }}</td>
+        <td>{{ r.overseas|floatformat:1|intcomma|default:"–" }}</td><td>{{ r.pachinko|floatformat:1|default:"–" }}</td><td>{{ r.live_entertainment|floatformat:1|default:"–" }}</td>
+        <td><b>{{ r.total|floatformat:1|intcomma }}</b></td>
+        <td>{% if r.yoy_pct is None %}–{% else %}<span class="{% if r.yoy_pct >= 0 %}up{% else %}down{% endif %}">{{ r.yoy_pct|floatformat:1 }}%</span>{% endif %}</td>
+      </tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  <p class="note">A dash means the segment was not surveyed that year: pachinko from 2008, live events from 2013.</p>
+</div></section>
+{% endblock %}

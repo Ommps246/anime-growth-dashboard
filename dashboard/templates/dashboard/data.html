@@ -1,0 +1,92 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+{% block title %}Data{% endblock %}
+{% block content %}
+<div class="page-head"><div class="wrap">
+  <span class="kicker">Data · データ</span>
+  <h1>Datasets and updates</h1>
+  <p>The CSV files live in the project's <code>data</code> folder and are loaded into the SQLite file <code>db.sqlite3</code>. Add a new year below and every chart, finding and prediction recalculates.</p>
+</div></div>
+
+<section><div class="wrap">
+  <div class="kpis">
+    <div class="kpi"><div class="big num">{{ k.anime_rows|intcomma }}</div><div class="lab">rows in the anime table</div></div>
+    <div class="kpi"><div class="big num">{{ k.manga_rows|intcomma }}</div><div class="lab">rows in the manga table</div></div>
+    <div class="kpi"><div class="big num">{{ k.market_rows }}</div><div class="lab">years in the market table</div></div>
+    <div class="kpi"><div class="big num">{{ user_rows }}</div><div class="lab">market rows added or edited by you</div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><h2>Source files</h2></div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>File</th><th>What it holds</th><th>Where it came from</th><th>Size</th><th></th></tr></thead>
+    <tbody>{% for s in sources %}<tr>
+      <td class="txt"><code>{{ s.file }}</code></td>
+      <td class="txt">{{ s.name }}<br><span class="muted" style="font-size:.84rem">{{ s.rows_note }}</span></td>
+      <td class="txt"><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.source }}</a><br><span class="muted" style="font-size:.84rem">{{ s.prepared }}</span></td>
+      <td>{{ s.size_mb|floatformat:1 }} MB</td>
+      <td><a class="btn small" href="{% url 'dashboard:download_raw' s.file %}">CSV</a></td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="note">This list is read from <code>data/sources.json</code>.</p>
+</div></section>
+
+<section><div class="wrap grid-2">
+  <div class="card span-2">
+    <h3>Add or correct a year (SQLite)</h3>
+    <p class="sub">Values in ¥ billion. Entering a year that already exists replaces it. The total is the sum of the segments.</p>
+    <form method="post">{% csrf_token %}<input type="hidden" name="action" value="save">
+      {{ form.non_field_errors }}
+      <div class="fields">
+        {% for field in form %}<div><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}
+      </div>
+      <div class="btn-row" style="margin-top:16px"><button class="btn primary" type="submit">Save to database</button></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Import records as JSON</h3>
+    <p class="sub">Paste a list of yearly records. Example for {{ next_year }} (made-up numbers, replace with real ones):</p>
+    <pre>{{ json_example }}</pre>
+    <form method="post" style="margin-top:14px">{% csrf_token %}<input type="hidden" name="action" value="json">
+      <label for="{{ json_form.payload.id_for_label }}">JSON</label>{{ json_form.payload }}{{ json_form.payload.errors }}
+      <div class="btn-row" style="margin-top:12px"><button class="btn primary" type="submit">Import JSON</button></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Latest rows in the market table</h3>
+    <p class="sub">Newest first.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Year</th><th>Merch</th><th>Overseas</th><th>Total</th><th>Source</th></tr></thead>
+      <tbody>{% for r in records %}<tr><td>{{ r.year }}</td><td>{{ r.merchandising|floatformat:1 }}</td><td>{{ r.overseas|floatformat:1|intcomma }}</td><td>{{ r.total|floatformat:1|intcomma }}</td>
+        <td class="txt"><span class="pill {% if r.record_source != 'AJA report' %}pink{% endif %}">{{ r.record_source }}</span></td></tr>{% endfor %}</tbody>
+    </table></div>
+    <form method="post" style="margin-top:14px">{% csrf_token %}<input type="hidden" name="action" value="reset">
+      <button class="btn small" type="submit">Reset market table to the original CSV</button></form>
+  </div>
+</div></section>
+
+<section><div class="wrap grid-2">
+  <div class="card">
+    <h3>Export results</h3><p class="sub">Computed tables in both formats.</p>
+    <div class="btn-row">
+      <a class="btn small" href="{% url 'dashboard:download' 'market' 'csv' %}">Market CSV</a><a class="btn small" href="{% url 'dashboard:download' 'market' 'json' %}">Market JSON</a>
+      <a class="btn small" href="{% url 'dashboard:download' 'production' 'csv' %}">Titles per year CSV</a><a class="btn small" href="{% url 'dashboard:download' 'production' 'json' %}">JSON</a>
+      <a class="btn small" href="{% url 'dashboard:download' 'manga' 'csv' %}">Manga per year CSV</a><a class="btn small" href="{% url 'dashboard:download' 'manga' 'json' %}">JSON</a>
+      <a class="btn small" href="{% url 'dashboard:download' 'forecast' 'csv' %}">Forecasts CSV</a><a class="btn small" href="{% url 'dashboard:download' 'forecast' 'json' %}">JSON</a>
+    </div>
+  </div>
+  <div class="card">
+    <h3>JSON API</h3><p class="sub">The interactive charts read these.</p>
+    <div class="btn-row">
+      <a class="btn small" href="{% url 'dashboard:api_summary' %}">/api/summary/</a>
+      <a class="btn small" href="{% url 'dashboard:api_market' %}">/api/market/</a>
+      <a class="btn small" href="{% url 'dashboard:api_production' %}">/api/production/</a>
+      <a class="btn small" href="{% url 'dashboard:api_manga' %}">/api/manga/</a>
+      <a class="btn small" href="{% url 'dashboard:api_forecast' 'market_total' %}">/api/forecast/market_total/</a>
+    </div>
+  </div>
+</div></section>
+{% endblock %}

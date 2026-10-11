@@ -1,0 +1,42 @@
+[
+  {
+    "file": "anime_titles.csv",
+    "name": "Anime titles (shows, films, OVA, ONA, specials)",
+    "rows_note": "One row per title, 1960 to 2027",
+    "source": "anime-offline-database by manami-project (merges MyAnimeList, AniList, AniDB, Kitsu and others)",
+    "url": "https://github.com/manami-project/anime-offline-database",
+    "snapshot": "Release 2026-27, last updated 2026-07-04",
+    "license": "ODbL 1.0 + DbCL 1.0",
+    "prepared": "Downloaded as JSON and flattened to CSV with scripts/build_datasets.py. Origin (Japan / China / Korea) is derived from the dataset's own tags."
+  },
+  {
+    "file": "manga_titles.csv",
+    "name": "Manga, light novels, manhwa and manhua",
+    "rows_note": "One row per title started between 1960 and 2022",
+    "source": "MyAnimeList manga dump published in lengoctuong/Prj-Manga-Dataset_Programming4DS",
+    "url": "https://github.com/lengoctuong/Prj-Manga-Dataset_Programming4DS",
+    "snapshot": "Collected mid-2022",
+    "license": "No licence stated in the repository; used here for coursework only",
+    "prepared": "Downloaded as CSV; adult-only entries, synopsis text and unused columns removed."
+  },
+  {
+    "file": "anime_market_segments.csv",
+    "name": "Anime industry market by segment, including merchandise",
+    "rows_note": "One row per year, 2002 to 2024, billion yen",
+    "source": "Association of Japanese Animations (AJA), Anime Industry Report summaries 2021, 2024 and 2025",
+    "url": "https://aja.gr.jp/english/japan-anime-data",
+    "snapshot": "2002-2016 from the 2021 summary, 2017-2023 from the 2024 summary, 2024 from the 2025 summary",
+    "license": "Published statistics, cited",
+    "prepared": "AJA publishes these as PDF charts, not CSV, so the figures were transcribed into CSV. Every row's segments add up to the published total."
+  },
+  {
+    "file": "tv_anime_production_minutes.csv",
+    "name": "TV anime production minutes",
+    "rows_note": "One row per year, 2000 to 2020",
+    "source": "Association of Japanese Animations (AJA), Anime Industry Report 2021 summary",
+    "url": "https://aja.gr.jp/english/japan-anime-data",
+    "snapshot": "2021 summary",
+    "license": "Published statistics, cited",
+    "prepared": "Transcribed from the report's chart."
+  }
+]
